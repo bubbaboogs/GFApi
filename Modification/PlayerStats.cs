@@ -1,6 +1,3 @@
-using GFApi;
-using UnityEngine;
-
 namespace GFApi.Modification{
     public static class PlayerStats{
         public enum stat{

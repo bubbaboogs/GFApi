@@ -1,6 +1,4 @@
-using GFApi;
 using UnityEngine;
-using System;
 using System.IO;
 
 namespace GFApi.Helper{

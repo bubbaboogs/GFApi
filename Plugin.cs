@@ -2,8 +2,6 @@
 using BepInEx.Logging;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using GFApi.Creation;
-using GFApi.Helper;
 
 namespace GFApi;
 
@@ -27,7 +25,7 @@ public class MainPlugin : BaseUnityPlugin
         if(newScene.name != "WonderpondIntro"){
             Logger.LogInfo("Starting game");
             gameData = GameObject.Find("GameData").GetComponent<GameData>();
-            gameData.itemDatabase.SetItemIDs();
+            //gameData.itemDatabase.SetItemIDs();
             gameData.challengeDatabase.SetItemIDs();
         }
     }
