@@ -1,5 +1,9 @@
 using UnityEngine;
 using System.IO;
+using HarmonyLib;
+using System.Collections.Generic;
+using System;
+using UnityEngine.UI;
 
 namespace GFApi.Helper{
     public static class HelperFunctions{

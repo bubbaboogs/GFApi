@@ -1,5 +1,10 @@
-﻿using BepInEx;
+﻿using System.Collections.Generic;
+using System.IO;
+using BepInEx;
 using BepInEx.Logging;
+using GFApi.Creation;
+using GFApi.Helper;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,6 +16,7 @@ public class MainPlugin : BaseUnityPlugin
 {
     internal static new ManualLogSource Logger;
     public static GameData gameData;
+    public static bool genSounds = false;
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
@@ -25,8 +31,31 @@ public class MainPlugin : BaseUnityPlugin
         if(newScene.name != "WonderpondIntro"){
             Logger.LogInfo("Starting game");
             gameData = GameObject.Find("GameData").GetComponent<GameData>();
+            LoadItemFiles();
             //gameData.itemDatabase.SetItemIDs();
             gameData.challengeDatabase.SetItemIDs();
+            if(GameObject.Find("GameMaster")){
+                GameObject gameMaster = GameObject.Find("GameMaster");
+                SoundManager soundManager = gameMaster.GetComponentInChildren<SoundManager>();
+                gameMaster.GetComponent<ItemManager>().SpawnItem(Vector2.zero, "testingItem", true);
+                if(genSounds)
+                    GameSoundGenerator.GenerateSoundClass(soundManager.gameObject);
+                GameSoundsLoader.LoadSounds(soundManager.gameObject);
+            }
+        }
+    }
+
+    public void LoadItemFiles(){
+        foreach(var file in Directory.GetFiles(Paths.PluginPath, "*.item.json", SearchOption.AllDirectories)){
+            print(file);
+            using (StreamReader r = new StreamReader(file))
+            {
+                string json = r.ReadToEnd();
+                //Item item = JsonConvert.DeserializeObject<Item>(json);
+                print(json);
+                Item item = Items.CreateItemFromFile(json, file);
+                Items.RegisterItem(item);
+            }
         }
     }
 }
