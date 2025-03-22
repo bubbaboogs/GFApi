@@ -2,6 +2,7 @@
 using System.IO;
 using BepInEx;
 using BepInEx.Logging;
+using GFApi.Audio;
 using GFApi.Creation;
 using GFApi.Helper;
 using Newtonsoft.Json;
@@ -16,7 +17,8 @@ public class MainPlugin : BaseUnityPlugin
 {
     internal static new ManualLogSource Logger;
     public static GameData gameData;
-    public static bool genSounds = false;
+    public static bool genSounds = true;
+    public static SoundManager soundManager = null;
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
@@ -31,13 +33,9 @@ public class MainPlugin : BaseUnityPlugin
         if(newScene.name != "WonderpondIntro"){
             Logger.LogInfo("Starting game");
             gameData = GameObject.Find("GameData").GetComponent<GameData>();
-            LoadItemFiles();
-            //gameData.itemDatabase.SetItemIDs();
-            gameData.challengeDatabase.SetItemIDs();
             if(GameObject.Find("GameMaster")){
                 GameObject gameMaster = GameObject.Find("GameMaster");
-                SoundManager soundManager = gameMaster.GetComponentInChildren<SoundManager>();
-                gameMaster.GetComponent<ItemManager>().SpawnItem(Vector2.zero, "testingItem", true);
+                soundManager = gameMaster.GetComponentInChildren<SoundManager>();
                 if(genSounds)
                     GameSoundGenerator.GenerateSoundClass(soundManager.gameObject);
                 GameSoundsLoader.LoadSounds(soundManager.gameObject);

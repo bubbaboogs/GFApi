@@ -22,16 +22,19 @@ internal static class GameSoundGenerator
         using (StreamWriter writer = new StreamWriter(filePath))
         {
             writer.WriteLine("using UnityEngine;");
+            writer.WriteLine("using GFApi;");
             writer.WriteLine();
+            writer.WriteLine("namespace GFApi.Audio{");
             writer.WriteLine("public static class GameSounds");
             writer.WriteLine("{");
 
             foreach (var sound in soundDict)
             {
                 string sanitizedFieldName = SanitizeFieldName(sound.Key);
-                writer.WriteLine($"\tpublic static readonly AudioClip {sanitizedFieldName} = null; // Will be assigned at runtime");
+                writer.WriteLine($"\tpublic static AudioClip {sanitizedFieldName} => MainPlugin.soundManager.audioClipDictionary[\"{sound.Key}\"];");
             }
 
+            writer.WriteLine("}");
             writer.WriteLine("}");
         }
 
