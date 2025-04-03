@@ -7,22 +7,26 @@ namespace GFApi.Modification{
             xp
         }
         public static void ModifyStats(stat statToModify, int newStat){
-            PlayerData playerData = new PlayerData();
-            PlayerData.PlayedBiomeData playedBiomeData = new PlayerData.PlayedBiomeData();
             switch(statToModify){
                 case stat.clickGrowStrength:
-                    playerData.clickGrowStrength = newStat;
+                    PlayerData.playerData.clickGrowStrength = newStat;
+                    MainPlugin.Logger.LogInfo($"Changed clickGrowStrength to {newStat}");
                     break;
                 case stat.glim:
-                    playedBiomeData.glimAmount = newStat;
+                    PlayerData.playerData.playedBiomeData.glimAmount = newStat;
+                    MainPlugin.Logger.LogInfo($"Changed glim to {newStat}");
                     break;
                 case stat.starRank:
-                    playerData.starRank = newStat;
+                    PlayerData.playerData.starRank = newStat;
+                    MainPlugin.handCursor.gameHUD.GetComponentInChildren<HUDTracker>().SetTracker();
+                    MainPlugin.Logger.LogInfo($"Changed starRank to {newStat}");
                     break;
                 case stat.xp:
-                    playedBiomeData.xp = newStat;
+                    PlayerData.playerData.playedBiomeData.xp = newStat;
+                    MainPlugin.Logger.LogInfo($"Changed xp to {newStat}");
                     break;
             }
+            //SaveSystem.SavePlayer(PlayerData.playerData, GameData.gameData);
         }
     }
 }

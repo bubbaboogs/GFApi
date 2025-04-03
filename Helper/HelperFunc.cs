@@ -4,6 +4,8 @@ using HarmonyLib;
 using System.Collections.Generic;
 using System;
 using UnityEngine.UI;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace GFApi.Helper{
     public static class HelperFunctions{
@@ -48,6 +50,17 @@ namespace GFApi.Helper{
             Sprite sprite = Sprite.Create(tex, rect, new Vector2(0.5f, 0.5f), 16);
 
             return sprite;
+        }
+
+        public static string checkMD5(string filename)
+        {
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = File.OpenRead(filename))
+                {
+                    return Encoding.Default.GetString(md5.ComputeHash(stream));
+                }
+            }
         }
     }
 }
