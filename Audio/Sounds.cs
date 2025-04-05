@@ -1,5 +1,8 @@
+using System.Collections;
+using System.IO;
 using GFApi;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace GFApi.Audio{
     public static class Sounds{
@@ -15,6 +18,12 @@ namespace GFApi.Audio{
             audioSource.PlayOneShot(soundToPlay);
             audioSource.gameObject.AddComponent<DestroyAfterSound>();
             audioSource.gameObject.GetComponent<DestroyAfterSound>().audioSource = audioSource;
-    }
+        }
+
+        public static AudioClip LoadAudioFromFile(string filePath){
+            WWW audioLoader = new WWW(Path.Combine("file://", filePath));
+	        AudioClip selectedClip = audioLoader.GetAudioClip(false, false, AudioType.MPEG);
+            return selectedClip;
+        }
     }
 }
