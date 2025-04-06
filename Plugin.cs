@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using BepInEx;
 using BepInEx.Logging;
-using GFApi.Audio;
 using GFApi.Creation;
-using GFApi.Helper;
 using GFApi.Modification;
-using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using UnityEngine.Tilemaps;
 
 namespace GFApi;
 
@@ -20,7 +16,6 @@ namespace GFApi;
 public class MainPlugin : BaseUnityPlugin
 {
     internal static new ManualLogSource Logger;
-
     public static UnityEvent OnBiomeLoad = new();
     public static UnityEvent OnGameLoad = new();
     public static UnityEvent OnGameStart = new();
@@ -32,6 +27,7 @@ public class MainPlugin : BaseUnityPlugin
     public static bool genSounds = true;
     public static string ImagesPath { get; } = Path.Combine(Paths.GameRootPath, "Textures");
     public static Dictionary<string, string> images = new Dictionary<string, string>();
+    public static Dictionary<string, TileBase> tiles = new();
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
@@ -42,7 +38,6 @@ public class MainPlugin : BaseUnityPlugin
     }
 
     public void gameStart(Scene previousScene, Scene newScene){
-        Logger.LogInfo("Calling OnGameStart.Invoke()");
         OnGameStart.Invoke();
         switch (newScene.name){
             case "WonderpondIntro":
@@ -74,20 +69,39 @@ public class MainPlugin : BaseUnityPlugin
             Logger.LogInfo("Starting game");
             gameData = GameObject.Find("GameData").GetComponent<GameData>();
             OnGameLoad.Invoke();
-            Logger.LogInfo("Game Load Called");
+            TileBase[] allLoadedTiles = Resources.FindObjectsOfTypeAll<TileBase>();
+            foreach(TileBase tile in allLoadedTiles){
+                if(!tiles.ContainsKey(tile.name)){
+                    tiles.Add(tile.name, tile);
+                }
+                else{
+                    continue;
+                }
+            }
+            allLoadedTiles = null;
             if(GameObject.Find("GameMaster")){
                 handCursor = GameObject.Find("Hand-Cursor").GetComponent<HandCursor>();
                 gameMaster = GameObject.Find("GameMaster");
                 soundManager = gameMaster.GetComponentInChildren<SoundManager>();
+                GameObject ground = GameObject.FindGameObjectWithTag("Ground");
+                Tilemap tilemap = ground.GetComponent<Tilemap>();
                 OnBiomeLoad.Invoke();
                 Logger.LogInfo("Biome Load Called");
                 Logger.LogInfo($"OnBiomeLoad listener count: {OnBiomeLoad.GetPersistentEventCount()}");
                 if(genSounds)
                     GameSoundGenerator.GenerateSoundClass(soundManager.gameObject);
                 GameSoundsLoader.LoadSounds(soundManager.gameObject);
+                tilemap.RefreshAllTiles();
             }
         }
     }
+
+    /*private void Update(){
+        if(Input.GetKeyDown(KeyCode.O)){
+            TileGenerator.GenerateTileClass(tiles);
+            Logger.LogInfo("Generated Tiles");
+        }
+    }*/
 
     public void LoadItemFiles(){
         foreach(var file in Directory.GetFiles(Paths.PluginPath, "*.item.json", SearchOption.AllDirectories)){
