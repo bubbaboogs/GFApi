@@ -1,9 +1,9 @@
-GFApi is an API for BepInEx to easily create mods for the game Gelli Fields.
+## GFApi is an API for BepInEx to easily create mods for the game Gelli Fields. ##
 It's still in development, so expect breaking changes and check for new updates frequently.
 
 
 
-How to build:
+## How to build: ##
 
 1. Clone the repository
 2. Open the repository in VSCode
@@ -12,7 +12,7 @@ How to build:
 5. You've built GFApi!!
 
 
-How to use GFApi in your mod:
+## How to use GFApi in your mod: ##
 1. Download or build GFApi.dll
 2. In your BepInEx plugin's project, find PluginName.csproj (PluginName is the name of your plugin)
 3. Add this code next to the Assembly-CSharp reference: `<Reference Include="GFApi">
