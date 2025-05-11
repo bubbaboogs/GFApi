@@ -1,10 +1,13 @@
+using System.Runtime.InteropServices;
+
 namespace GFApi.Modification{
     public static class PlayerStats{
         public enum stat{
             glim,
             starRank,
             clickGrowStrength,
-            xp
+            xp,
+            lunapon
         }
         public static void ModifyStats(stat statToModify, int newStat){
             switch(statToModify){
@@ -18,12 +21,16 @@ namespace GFApi.Modification{
                     break;
                 case stat.starRank:
                     PlayerData.playerData.starRank = newStat;
-                    MainPlugin.handCursor.gameHUD.GetComponentInChildren<HUDTracker>().SetTracker();
                     MainPlugin.Logger.LogInfo($"Changed starRank to {newStat}");
                     break;
                 case stat.xp:
                     PlayerData.playerData.playedBiomeData.xp = newStat;
                     MainPlugin.Logger.LogInfo($"Changed xp to {newStat}");
+                    break;
+                case stat.lunapon:
+                    PlayerData.playerData.playedBiomeData.levelRewardsLeft = newStat;
+                    PlayerData.playerData.playerDataManager.lunaponMachine.lunaponAmountText.text = newStat.ToString();
+                    MainPlugin.Logger.LogInfo($"Changed lunapon amount to {newStat}");
                     break;
             }
             //SaveSystem.SavePlayer(PlayerData.playerData, GameData.gameData);

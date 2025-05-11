@@ -52,6 +52,23 @@ namespace GFApi.Helper{
             return sprite;
         }
 
+        public static Sprite LoadSpriteFromFile(string filePath, int pixelsPerUnit){
+            Texture2D tex = null;
+            byte[] fileData;
+
+            if(File.Exists(filePath)){
+                fileData = File.ReadAllBytes(filePath);
+                tex = new Texture2D(2, 2, TextureFormat.BGRA32, false);
+                tex.LoadImage(fileData);
+                tex.filterMode = FilterMode.Point;
+            }
+
+            Rect rect = new Rect(0, 0, tex.width, tex.height);
+            Sprite sprite = Sprite.Create(tex, rect, new Vector2(0.5f, 0.5f), pixelsPerUnit);
+
+            return sprite;
+        }
+
         public static string checkMD5(string filename)
         {
             using (var md5 = MD5.Create())

@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>GFApi</AssemblyName>
     <Product>Gelli Fields API</Product>
-    <Version>1.0.0</Version>
+    <Version>1.1.2</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <RestoreAdditionalProjectSources>
@@ -35,8 +35,11 @@
       <Reference Include="UI">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Gelli Fields Demo\Gelli Fields_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
+    <Reference Include="TextMeshPro">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Gelli Fields Demo\Gelli Fields_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
   </ItemGroup>
-  
+
   <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
   </ItemGroup>

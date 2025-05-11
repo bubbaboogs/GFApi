@@ -1,3 +1,4 @@
 *.json
 /bin/Debug/netstandard2.1
 /obj
+/bin/

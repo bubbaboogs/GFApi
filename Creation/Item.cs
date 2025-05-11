@@ -9,7 +9,9 @@ using System;
 
 namespace GFApi.Creation{
     public static class Items{
-        public static Item CreateItem(string itemName, string technicalName, Sprite itemSprite, int sellAmount = 0, int rarity = 0,  bool isPlantable = false, bool isEdible = false){
+
+        public static ItemManager itemManager = null;
+        public static Item CreateItem(string itemName, string technicalName, Sprite itemSprite, int sellAmount = 0, int rarity = 0,  bool isPlantable = false, bool isEdible = false, int XPForEating = 0, Crop cropToPlant = null){
             Item item = (Item)ScriptableObject.CreateInstance("Item");
             item.itemName = itemName;
             item.itemTechnicalName = technicalName;
@@ -18,6 +20,9 @@ namespace GFApi.Creation{
             item.rarity = rarity;
             item.isEdible = isEdible;
             item.itemSprite = itemSprite;
+            item.name = itemName;
+            item.XPForEating = XPForEating;
+            item.cropToPlant = cropToPlant;
             MainPlugin.Logger.LogInfo(item.itemName + "\n" + item.isEdible);
             return item;
        }
@@ -38,10 +43,14 @@ namespace GFApi.Creation{
             MainPlugin.Logger.LogInfo(item.itemName);
        }
 
-       public static GameObject CreateShopItem(int itemID, Item itemToSell){
+       public static void RegisterItemShop(Item item, string[] biomes){
+            MainPlugin.registeredItems.Add(item, biomes);
+       }
+
+       public static GameObject CreateShopItem(Item itemToSell){
             GameObject shopItem = new GameObject();
             ShopItem itemComponent = shopItem.AddComponent<ShopItem>();
-            itemComponent.shopItemID = itemID;
+            itemComponent.shopItemID = itemToSell.itemID;
             itemComponent.itemToSell = itemToSell;
             return shopItem;
        }
@@ -66,5 +75,23 @@ namespace GFApi.Creation{
             MainPlugin.Logger.LogInfo(item.itemName + "\n" + item.isEdible);
             return item;
        }
+
+       public static GameObject SpawnItemByName(Vector2 spawnPos, string name, bool jump = false){
+            return itemManager.SpawnItem(spawnPos, name, jump);
+       }
+
+       public static GameObject SpawnItem(Vector2 spawnPos, Item item, bool jump = false){
+            GameObject gameObject = UnityEngine.Object.Instantiate(itemManager.itemObject, spawnPos, Quaternion.identity);
+            gameObject.GetComponent<SpriteRenderer>().sprite = item.itemSprite;
+            gameObject.GetComponent<WorldItem>().item = item;
+            itemManager.droppedItemList.Add(gameObject);
+            if (jump)
+            {
+                gameObject.GetComponent<Rigidbody2D>().AddForce(new Vector2(UnityEngine.Random.Range(-0.1f, 0.2f), UnityEngine.Random.Range(2.5f, 2.9f)), ForceMode2D.Impulse);
+            }
+
+            return gameObject;
+       }
+
     }
 }
