@@ -75,10 +75,11 @@ namespace GFApi.Modification
                 {
                     byte[] fileData = File.ReadAllBytes(filePath);
                     Texture2D newTex = new Texture2D(2, 2, TextureFormat.ARGB32, false);
+                    newTex.filterMode = FilterMode.Point;
                     if (newTex.LoadImage(fileData))
                     {
                         newTex.Apply();
-                        Sprite newSprite = Sprite.Create(newTex, sprite.rect, sprite.pivot, sprite.pixelsPerUnit);
+                        Sprite newSprite = Sprite.Create(newTex, sprite.rect, new Vector2(sprite.pivot.x / sprite.texture.width, sprite.pivot.y / sprite.texture.height), sprite.pixelsPerUnit);
                         UpdateSpriteReferences(sprite, newSprite);
                     }
                 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using BepInEx;
 using BepInEx.Logging;
@@ -92,23 +93,25 @@ public class MainPlugin : BaseUnityPlugin
             if(!hasLoaded){
                 Logger.LogInfo("Starting game");
                 gameData = GameObject.Find("GameData").GetComponent<GameData>();
-                TileBase[] allLoadedTiles = Resources.FindObjectsOfTypeAll<TileBase>();
-                foreach(TileBase tile in allLoadedTiles){
-                    if(!tiles.ContainsKey(tile.name)){
-                        tiles.Add(tile.name, tile);
-                    }
-                    else{
-                        continue;
-                    }
-                }
-                allLoadedTiles = null;
                 hasLoaded = true;
                 OnGameLoad.Invoke();
             }
+            TileBase[] allLoadedTiles = Resources.FindObjectsOfTypeAll<TileBase>();
+            foreach(TileBase tile in allLoadedTiles){
+                if (!tiles.ContainsKey(tile.name))
+                {
+                    tiles.Add(tile.name, tile);
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            allLoadedTiles = null;
             currentLoadedScene = newScene.name;
             OnSceneLoad.Invoke(currentScene);
             if(GameObject.Find("GameMaster")){
-                handCursor = GameObject.Find("Hand-Cursor").GetComponent<HandCursor>();
+                handCursor = HandCursor.handCursor;
                 gameMaster = GameObject.Find("GameMaster");
                 soundManager = gameMaster.GetComponentInChildren<SoundManager>();
                 shop = GameObject.Find("Shop").GetComponent<Shop>();
