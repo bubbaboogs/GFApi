@@ -5,6 +5,7 @@ using BepInEx;
 using GFApi.Helper;
 using UnityEngine;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace GFApi.Modification
 {
@@ -74,12 +75,39 @@ namespace GFApi.Modification
                 try
                 {
                     byte[] fileData = File.ReadAllBytes(filePath);
+                    string jsonPath = Path.ChangeExtension(filePath, ".json");
+                    JsonOverrides data = new();
+                    if (File.Exists(jsonPath))
+                    {
+                        string jsonContent = File.ReadAllText(jsonPath);
+                        try
+                        {
+                            data = JsonConvert.DeserializeObject<JsonOverrides>(jsonContent);
+                            MainPlugin.Logger.LogInfo($"override_rect for {sprite.name}: {data.override_rect}");
+                        }
+                        catch (Exception jsonEx)
+                        {
+                            MainPlugin.Logger.LogWarning($"Failed to parse JSON for {sprite.name}: {jsonEx.Message}");
+                        }
+                    }
+
                     Texture2D newTex = new Texture2D(2, 2, TextureFormat.ARGB32, false);
                     newTex.filterMode = FilterMode.Point;
                     if (newTex.LoadImage(fileData))
                     {
                         newTex.Apply();
-                        Sprite newSprite = Sprite.Create(newTex, sprite.rect, new Vector2(sprite.pivot.x / sprite.texture.width, sprite.pivot.y / sprite.texture.height), sprite.pixelsPerUnit);
+                        Sprite newSprite;
+
+                        if (data.override_rect)
+                        {
+                        	Vector2 pivot = new Vector2(sprite.pivot.x / sprite.texture.width, sprite.pivot.y / sprite.texture.height);
+                        	newSprite = Sprite.Create(newTex, new Rect(0, 0, newTex.width, newTex.height), pivot, sprite.pixelsPerUnit);
+                        }
+                        else
+                        {
+                        	Vector2 pivot = new Vector2(sprite.pivot.x / sprite.rect.width, sprite.pivot.y / sprite.rect.height);
+                        	newSprite = Sprite.Create(newTex, sprite.rect, pivot, sprite.pixelsPerUnit);
+                        }
                         UpdateSpriteReferences(sprite, newSprite);
                     }
                 }
@@ -105,4 +133,9 @@ namespace GFApi.Modification
             }
         }
     }
+}
+
+public class JsonOverrides
+{
+    public bool override_rect = false;
 }

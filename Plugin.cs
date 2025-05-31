@@ -113,12 +113,18 @@ public class MainPlugin : BaseUnityPlugin
             if(GameObject.Find("GameMaster")){
                 handCursor = HandCursor.handCursor;
                 gameMaster = GameObject.Find("GameMaster");
-                soundManager = gameMaster.GetComponentInChildren<SoundManager>();
-                shop = GameObject.Find("Shop").GetComponent<Shop>();
-                Items.itemManager = gameMaster.GetComponent<ItemManager>();
-                Crops.cropManager = gameMaster.GetComponent<CropManager>();
+                soundManager = PlayerData.playerData.playerDataManager.soundManager;
+                shop = PlayerData.playerData.playerDataManager.shop;
+                Items.itemManager = PlayerData.playerData.playerDataManager.itemManager;
+                Crops.cropManager = PlayerData.playerData.playerDataManager.cropManager;
                 GameObject ground = GameObject.FindGameObjectWithTag("Ground");
+                GameObject ground_back = GameObject.Find("Background-Back");
+                GameObject background = GameObject.Find("Background");
+                GameObject ground_front = GameObject.Find("Background-Front");
                 Tilemap tilemap = ground.GetComponent<Tilemap>();
+                Tilemap tilemap_bg = background.GetComponent<Tilemap>();
+                Tilemap tilemap_back = ground_back.GetComponent<Tilemap>();
+                Tilemap tilemap_front = ground_front.GetComponent<Tilemap>();
                 OnBiomeLoad.Invoke();
                 Logger.LogInfo("Biome Load Called");
                 Logger.LogInfo($"OnBiomeLoad listener count: {OnBiomeLoad.GetPersistentEventCount()}");
@@ -126,6 +132,9 @@ public class MainPlugin : BaseUnityPlugin
                     GameSoundGenerator.GenerateSoundClass(soundManager.gameObject);
                 GameSoundsLoader.LoadSounds(soundManager.gameObject);
                 tilemap.RefreshAllTiles();
+                tilemap_bg.RefreshAllTiles();
+                tilemap_back.RefreshAllTiles();
+                tilemap_front.RefreshAllTiles();
                 shop.SetShop();
             }
         }
