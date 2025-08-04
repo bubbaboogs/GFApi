@@ -45,6 +45,10 @@ public class MainPlugin : BaseUnityPlugin
 
     public static Dictionary<Item, string[]> registeredItems = new();
     public static List<Crop> registeredCrops = new();
+    public static List<String> registeredBiomes = new(){
+        "FriendlyFields",
+        "RockyRetreat"
+    };
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
@@ -60,9 +64,11 @@ public class MainPlugin : BaseUnityPlugin
         harmony.PatchAll();
     }
 
-    public void gameStart(Scene previousScene, Scene newScene){
+    public void gameStart(Scene previousScene, Scene newScene)
+    {
         OnGameStart.Invoke();
-        switch (newScene.name){
+        switch (newScene.name)
+        {
             case "WonderpondIntro":
                 currentScene = GameData.biomeList.WonderpondIntro;
                 break;
@@ -89,15 +95,18 @@ public class MainPlugin : BaseUnityPlugin
         ResourcePack.ReplaceImages();
         Logger.LogInfo("Resource packs loaded");
         gameFont = FindFirstObjectByType<TextMeshPro>().font;
-        if(newScene.name != "WonderpondIntro"){
-            if(!hasLoaded){
+        if (newScene.name != "WonderpondIntro")
+        {
+            if (!hasLoaded)
+            {
                 Logger.LogInfo("Starting game");
                 gameData = GameObject.Find("GameData").GetComponent<GameData>();
                 hasLoaded = true;
                 OnGameLoad.Invoke();
             }
             TileBase[] allLoadedTiles = Resources.FindObjectsOfTypeAll<TileBase>();
-            foreach(TileBase tile in allLoadedTiles){
+            foreach (TileBase tile in allLoadedTiles)
+            {
                 if (!tiles.ContainsKey(tile.name))
                 {
                     tiles.Add(tile.name, tile);
@@ -110,7 +119,8 @@ public class MainPlugin : BaseUnityPlugin
             allLoadedTiles = null;
             currentLoadedScene = newScene.name;
             OnSceneLoad.Invoke(currentScene);
-            if(GameObject.Find("GameMaster")){
+            if (GameObject.Find("GameMaster"))
+            {
                 handCursor = HandCursor.handCursor;
                 gameMaster = GameObject.Find("GameMaster");
                 soundManager = PlayerData.playerData.playerDataManager.soundManager;
@@ -128,7 +138,7 @@ public class MainPlugin : BaseUnityPlugin
                 OnBiomeLoad.Invoke();
                 Logger.LogInfo("Biome Load Called");
                 Logger.LogInfo($"OnBiomeLoad listener count: {OnBiomeLoad.GetPersistentEventCount()}");
-                if(genSounds)
+                if (genSounds)
                     GameSoundGenerator.GenerateSoundClass(soundManager.gameObject);
                 GameSoundsLoader.LoadSounds(soundManager.gameObject);
                 tilemap.RefreshAllTiles();
@@ -147,8 +157,10 @@ public class MainPlugin : BaseUnityPlugin
         }
     }*/
 
-    public void LoadItemFiles(){
-        foreach(var file in Directory.GetFiles(Paths.PluginPath, "*.item.json", SearchOption.AllDirectories)){
+    public void LoadItemFiles()
+    {
+        foreach (var file in Directory.GetFiles(Paths.PluginPath, "*.item.json", SearchOption.AllDirectories))
+        {
             print(file);
             using (StreamReader r = new StreamReader(file))
             {
@@ -161,8 +173,10 @@ public class MainPlugin : BaseUnityPlugin
         }
     }
 
-    public void MainMenuLoad(GameData.biomeList scene){
-        if (scene == GameData.biomeList.MainMenu){
+    public void MainMenuLoad(GameData.biomeList scene)
+    {
+        if (scene == GameData.biomeList.MainMenu)
+        {
             GameObject versionText = GameObject.Find("Game-Version-Text");
             versionText.transform.position = new Vector3(versionText.transform.position.x + 1.38f, versionText.transform.position.y, versionText.transform.position.z);
             versionText.GetComponent<TextMeshPro>().text += " (MODDED)";
@@ -179,5 +193,15 @@ public class MainPlugin : BaseUnityPlugin
             discordButton.targetGraphic = discordText.GetComponent<TextMeshProUGUI>();
             discordText.transform.position = new Vector3(-9, -7, 0);
         }
+    }
+
+    public bool inBiome()
+    {
+        return registeredBiomes.Contains(currentLoadedScene);
+    }
+
+    public bool inBiome(string biomeName)
+    {
+        return registeredBiomes.Contains(biomeName);
     }
 }
