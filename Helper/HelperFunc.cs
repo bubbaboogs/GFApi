@@ -6,27 +6,50 @@ using System;
 using UnityEngine.UI;
 using System.Security.Cryptography;
 using System.Text;
+using System.Reflection;
+using System.Linq;
 
-namespace GFApi.Helper{
-    public static class HelperFunctions{
+namespace GFApi.Helper
+{
+    public static class HelperFunctions
+    {
         public static Component CopyComponent(Component original, GameObject destination)
         {
-        System.Type type = original.GetType();
-        Component copy = destination.AddComponent(type);
-        // Copied fields can be restricted with BindingFlags
-        System.Reflection.FieldInfo[] fields = type.GetFields();
-        foreach (System.Reflection.FieldInfo field in fields)
-        {
-           field.SetValue(copy, field.GetValue(original));
-        }
-        return copy;
+            System.Type type = original.GetType();
+            Component copy = destination.AddComponent(type);
+            // Copied fields can be restricted with BindingFlags
+            System.Reflection.FieldInfo[] fields = type.GetFields();
+            foreach (System.Reflection.FieldInfo field in fields)
+            {
+                field.SetValue(copy, field.GetValue(original));
+            }
+            return copy;
         }
 
-        public static Texture2D LoadTexFromFile(string filePath){
+        public static void CopyFields<TSrc, TDest>(TSrc source, TDest destination)
+        {
+        	var srcFields = typeof(TSrc).GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        	var destFields = typeof(TDest).GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        
+        	foreach (var srcField in srcFields)
+        	{
+        		var destField = destFields.FirstOrDefault(f => f.Name == srcField.Name && f.FieldType == srcField.FieldType);
+        		if (destField != null)
+        		{
+        			destField.SetValue(destination, srcField.GetValue(source));
+        		}
+        	}
+        }
+
+
+
+        public static Texture2D LoadTexFromFile(string filePath)
+        {
             Texture2D tex = null;
             byte[] fileData;
 
-            if(File.Exists(filePath)){
+            if (File.Exists(filePath))
+            {
                 fileData = File.ReadAllBytes(filePath);
                 tex = new Texture2D(2, 2, TextureFormat.BGRA32, false);
                 tex.LoadImage(fileData);
@@ -35,11 +58,13 @@ namespace GFApi.Helper{
             return tex;
         }
 
-        public static Sprite LoadSpriteFromFile(string filePath){
+        public static Sprite LoadSpriteFromFile(string filePath)
+        {
             Texture2D tex = null;
             byte[] fileData;
 
-            if(File.Exists(filePath)){
+            if (File.Exists(filePath))
+            {
                 fileData = File.ReadAllBytes(filePath);
                 tex = new Texture2D(2, 2, TextureFormat.BGRA32, false);
                 tex.LoadImage(fileData);
@@ -52,11 +77,13 @@ namespace GFApi.Helper{
             return sprite;
         }
 
-        public static Sprite LoadSpriteFromFile(string filePath, int pixelsPerUnit){
+        public static Sprite LoadSpriteFromFile(string filePath, int pixelsPerUnit)
+        {
             Texture2D tex = null;
             byte[] fileData;
 
-            if(File.Exists(filePath)){
+            if (File.Exists(filePath))
+            {
                 fileData = File.ReadAllBytes(filePath);
                 tex = new Texture2D(2, 2, TextureFormat.BGRA32, false);
                 tex.LoadImage(fileData);

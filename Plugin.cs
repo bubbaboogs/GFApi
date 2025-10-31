@@ -4,6 +4,7 @@ using System.IO;
 using BepInEx;
 using BepInEx.Logging;
 using GFApi.Creation;
+using GFApi.Helper;
 using GFApi.Modification;
 using TMPro;
 using UnityEngine;
@@ -37,7 +38,7 @@ public class MainPlugin : BaseUnityPlugin
 
     public static GameData.biomeList currentScene = GameData.biomeList.MainMenu;
     public static string currentLoadedScene = "";
-    public static bool genSounds = true;
+    public static bool genSounds = false;
     public static string ImagesPath { get; } = Path.Combine(Paths.GameRootPath, "Textures");
     public static string GFApiPath;
     public static Dictionary<string, string> images = new Dictionary<string, string>();
@@ -138,6 +139,7 @@ public class MainPlugin : BaseUnityPlugin
                 OnBiomeLoad.Invoke();
                 Logger.LogInfo("Biome Load Called");
                 Logger.LogInfo($"OnBiomeLoad listener count: {OnBiomeLoad.GetPersistentEventCount()}");
+                shop.SetShop();
                 if (genSounds)
                     GameSoundGenerator.GenerateSoundClass(soundManager.gameObject);
                 GameSoundsLoader.LoadSounds(soundManager.gameObject);
@@ -145,7 +147,6 @@ public class MainPlugin : BaseUnityPlugin
                 tilemap_bg.RefreshAllTiles();
                 tilemap_back.RefreshAllTiles();
                 tilemap_front.RefreshAllTiles();
-                shop.SetShop();
             }
         }
     }
