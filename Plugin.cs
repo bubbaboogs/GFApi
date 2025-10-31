@@ -21,10 +21,10 @@ public class MainPlugin : BaseUnityPlugin
 {
     internal static new ManualLogSource Logger;
 
-    public static Dictionary<Component, Delegate> onBiomeLoadEvent = new();
-    public static Dictionary<Component, Delegate> onGameLoadEvent = new();
-    public static Dictionary<Component, Delegate> onGameStartEvent = new();
-    public static Dictionary<Component, Delegate> onSceneLoadEvent = new();
+    public static List<Delegate> onBiomeLoadEvent = new();
+    public static List<Delegate> onGameLoadEvent = new();
+    public static List<Delegate> onGameStartEvent = new();
+    public static List<Delegate> onSceneLoadEvent = new();
 
     public static GameData gameData;
     public static GameObject gameMaster;
@@ -58,7 +58,7 @@ public class MainPlugin : BaseUnityPlugin
         Logger = base.Logger;
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         SceneManager.activeSceneChanged += gameStart;
-        onSceneLoadEvent[this] = MainMenuLoad;
+        onSceneLoadEvent.Add(MainMenuLoad);
         GFApiPath = Path.GetDirectoryName(Info.Location);
         //UIBundle = AssetBundle.LoadFromFile(Path.Combine(GFApiPath, "UI"));
         HarmonyLib.Harmony harmony = new HarmonyLib.Harmony(MyPluginInfo.PLUGIN_GUID);
@@ -67,9 +67,16 @@ public class MainPlugin : BaseUnityPlugin
 
     public void gameStart(Scene previousScene, Scene newScene)
     {
-        foreach(Component comp in onGameStartEvent.Keys)
+        foreach(Delegate del in onGameStartEvent)
         {
-            comp.SendMessage(onGameStartEvent[comp].Method.Name);
+            try
+            {
+                del.DynamicInvoke();
+            }
+            catch(Exception e)
+            {
+                Logger.LogWarning(e);
+            }
         }
         switch (newScene.name)
         {
@@ -106,10 +113,16 @@ public class MainPlugin : BaseUnityPlugin
                 Logger.LogInfo("Starting game");
                 gameData = GameObject.Find("GameData").GetComponent<GameData>();
                 hasLoaded = true;
-                foreach(Component comp in onGameLoadEvent.Keys)
+                foreach(Delegate del in onGameLoadEvent)
                 {
-                    comp.SendMessage(onGameLoadEvent[comp].Method.Name);
-                    Logger.LogInfo(onGameLoadEvent[comp].Method.Name);
+                    try
+                    {
+                        del.DynamicInvoke();
+                    }
+                    catch(Exception e)
+                    {
+                        Logger.LogWarning(e);
+                    }
                 }
             }
             TileBase[] allLoadedTiles = Resources.FindObjectsOfTypeAll<TileBase>();
@@ -126,9 +139,16 @@ public class MainPlugin : BaseUnityPlugin
             }
             allLoadedTiles = null;
             currentLoadedScene = newScene.name;
-            foreach(Component comp in onSceneLoadEvent.Keys)
+            foreach(Delegate del in onSceneLoadEvent)
             {
-                comp.SendMessage(onSceneLoadEvent[comp].Method.Name, currentScene);
+                try
+                {
+                    del.DynamicInvoke(currentScene);
+                }
+                catch(Exception e)
+                {
+                    Logger.LogWarning(e);
+                }
             }
             if (GameObject.Find("GameMaster"))
             {
@@ -146,9 +166,16 @@ public class MainPlugin : BaseUnityPlugin
                 Tilemap tilemap_bg = background.GetComponent<Tilemap>();
                 Tilemap tilemap_back = ground_back.GetComponent<Tilemap>();
                 Tilemap tilemap_front = ground_front.GetComponent<Tilemap>();
-                foreach(Component comp in onBiomeLoadEvent.Keys)
+                foreach(Delegate del in onBiomeLoadEvent)
                 {
-                    comp.SendMessage(onBiomeLoadEvent[comp].Method.Name);
+                    try
+                    {
+                        del.DynamicInvoke();
+                    }
+                    catch(Exception e)
+                    {
+                        Logger.LogWarning(e);
+                    }
                 }
                 Logger.LogInfo("Biome Load Called");
                 shop.SetShop();
