@@ -21,10 +21,10 @@ public class MainPlugin : BaseUnityPlugin
 {
     internal static new ManualLogSource Logger;
 
-    public static UnityEvent OnBiomeLoad = new();
-    public static UnityEvent OnGameLoad = new();
-    public static UnityEvent OnGameStart = new();
-    public static UnityEvent<GameData.biomeList> OnSceneLoad = new();
+    public static Dictionary<Component, Delegate> onBiomeLoadEvent = new();
+    public static Dictionary<Component, Delegate> onGameLoadEvent = new();
+    public static Dictionary<Component, Delegate> onGameStartEvent = new();
+    public static Dictionary<Component, Delegate> onSceneLoadEvent = new();
 
     public static GameData gameData;
     public static GameObject gameMaster;
@@ -58,7 +58,7 @@ public class MainPlugin : BaseUnityPlugin
         Logger = base.Logger;
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         SceneManager.activeSceneChanged += gameStart;
-        OnSceneLoad.AddListener(MainMenuLoad);
+        onSceneLoadEvent[this] = MainMenuLoad;
         GFApiPath = Path.GetDirectoryName(Info.Location);
         //UIBundle = AssetBundle.LoadFromFile(Path.Combine(GFApiPath, "UI"));
         HarmonyLib.Harmony harmony = new HarmonyLib.Harmony(MyPluginInfo.PLUGIN_GUID);
@@ -67,7 +67,10 @@ public class MainPlugin : BaseUnityPlugin
 
     public void gameStart(Scene previousScene, Scene newScene)
     {
-        OnGameStart.Invoke();
+        foreach(Component comp in onGameStartEvent.Keys)
+        {
+            comp.SendMessage(onGameStartEvent[comp].Method.Name);
+        }
         switch (newScene.name)
         {
             case "WonderpondIntro":
@@ -103,7 +106,11 @@ public class MainPlugin : BaseUnityPlugin
                 Logger.LogInfo("Starting game");
                 gameData = GameObject.Find("GameData").GetComponent<GameData>();
                 hasLoaded = true;
-                OnGameLoad.Invoke();
+                foreach(Component comp in onGameLoadEvent.Keys)
+                {
+                    comp.SendMessage(onGameLoadEvent[comp].Method.Name);
+                    Logger.LogInfo(onGameLoadEvent[comp].Method.Name);
+                }
             }
             TileBase[] allLoadedTiles = Resources.FindObjectsOfTypeAll<TileBase>();
             foreach (TileBase tile in allLoadedTiles)
@@ -119,7 +126,10 @@ public class MainPlugin : BaseUnityPlugin
             }
             allLoadedTiles = null;
             currentLoadedScene = newScene.name;
-            OnSceneLoad.Invoke(currentScene);
+            foreach(Component comp in onSceneLoadEvent.Keys)
+            {
+                comp.SendMessage(onSceneLoadEvent[comp].Method.Name, currentScene);
+            }
             if (GameObject.Find("GameMaster"))
             {
                 handCursor = HandCursor.handCursor;
@@ -136,9 +146,11 @@ public class MainPlugin : BaseUnityPlugin
                 Tilemap tilemap_bg = background.GetComponent<Tilemap>();
                 Tilemap tilemap_back = ground_back.GetComponent<Tilemap>();
                 Tilemap tilemap_front = ground_front.GetComponent<Tilemap>();
-                OnBiomeLoad.Invoke();
+                foreach(Component comp in onBiomeLoadEvent.Keys)
+                {
+                    comp.SendMessage(onBiomeLoadEvent[comp].Method.Name);
+                }
                 Logger.LogInfo("Biome Load Called");
-                Logger.LogInfo($"OnBiomeLoad listener count: {OnBiomeLoad.GetPersistentEventCount()}");
                 shop.SetShop();
                 if (genSounds)
                     GameSoundGenerator.GenerateSoundClass(soundManager.gameObject);
