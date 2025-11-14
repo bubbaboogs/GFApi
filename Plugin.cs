@@ -57,7 +57,7 @@ public class MainPlugin : BaseUnityPlugin
         // Plugin startup logic
         Logger = base.Logger;
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
-        SceneManager.activeSceneChanged += gameStart;
+        SceneManager.activeSceneChanged += GameStart;
         onSceneLoadEvent.Add(MainMenuLoad);
         GFApiPath = Path.GetDirectoryName(Info.Location);
         //UIBundle = AssetBundle.LoadFromFile(Path.Combine(GFApiPath, "UI"));
@@ -65,7 +65,7 @@ public class MainPlugin : BaseUnityPlugin
         harmony.PatchAll();
     }
 
-    public void gameStart(Scene previousScene, Scene newScene)
+    public void GameStart(Scene previousScene, Scene newScene)
     {
         foreach(Delegate del in onGameStartEvent)
         {
@@ -220,28 +220,33 @@ public class MainPlugin : BaseUnityPlugin
             GameObject versionText = GameObject.Find("Game-Version-Text");
             versionText.transform.position = new Vector3(versionText.transform.position.x + 1.38f, versionText.transform.position.y, versionText.transform.position.z);
             versionText.GetComponent<TextMeshPro>().text += " (MODDED)";
-            GameObject discordText = UI.UICreation.CreateText("Join the Gelli Fields Modding Discord!", 5);
-            discordText.transform.SetParent(GameObject.Find("HUD").transform);
-            discordText.GetComponent<TextMeshProUGUI>().color = new Color(0, 123, 255);
-            discordText.transform.localScale = new Vector3(3, 3);
-            discordText.name = "DiscordText";
-            discordText.AddComponent<ContentSizeFitter>().horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-            discordText.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            Button discordButton = discordText.AddComponent<Button>();
-            DiscordTextHover discordTextHover = discordText.AddComponent<DiscordTextHover>();
-            discordButton.onClick.AddListener(() => Application.OpenURL("https://discord.gg/Ygr4zQAMxn"));
-            discordButton.targetGraphic = discordText.GetComponent<TextMeshProUGUI>();
-            discordText.transform.position = new Vector3(-9, -7, 0);
+            DiscText();
         }
     }
 
-    public bool inBiome()
+    public bool InBiome()
     {
         return registeredBiomes.Contains(currentLoadedScene);
     }
 
-    public bool inBiome(string biomeName)
+    public bool InBiome(string biomeName)
     {
         return registeredBiomes.Contains(biomeName);
+    }
+
+    private void DiscText()
+    {
+        GameObject discordText = UI.UICreation.CreateText("Join the Gelli Fields Modding Discord!", 5);
+        discordText.transform.SetParent(GameObject.Find("HUD").transform);
+        discordText.GetComponent<TextMeshProUGUI>().color = new Color(0, 123, 255);
+        discordText.transform.localScale = new Vector3(3, 3);
+        discordText.name = "DiscordText";
+        discordText.AddComponent<ContentSizeFitter>().horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+        discordText.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        Button discordButton = discordText.AddComponent<Button>();
+        DiscordTextHover discordTextHover = discordText.AddComponent<DiscordTextHover>();
+        discordButton.onClick.AddListener(() => Application.OpenURL("https://discord.gg/Ygr4zQAMxn"));
+        discordButton.targetGraphic = discordText.GetComponent<TextMeshProUGUI>();
+        discordText.transform.position = new Vector3(-9, -7, 0);
     }
 }
